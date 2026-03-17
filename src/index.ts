@@ -147,26 +147,21 @@ app.post("/api/chat", async (c) => {
     // Step 2: Query Vectorize for relevant paper chunks
     const activePaperId = await sessionStub.getMeta("activePaperId");
 
-    const vectorQuery: VectorizeQueryOptions = {
-      topK: 5,
+    const matches = await c.env.VECTORIZE.query(queryVector, {
+      topK: 8,
       returnMetadata: "all",
-    };
+    });
 
-    // Filter by paper if one is selected
-    if (activePaperId) {
-      vectorQuery.filter = { paperId: activePaperId };
-    }
-
-    const matches = await c.env.VECTORIZE.query(
-      queryVector,
-      vectorQuery
+    console.log(
+      `Vectorize returned ${matches.matches.length} matches, top score: ${matches.matches[0]?.score ?? "none"}`
     );
 
     // Step 3: Build context from retrieved chunks
+    // Use a low threshold so we don't miss relevant content
     const relevantChunks = matches.matches
-      .filter((m) => m.score > 0.5)
+      .filter((m) => m.score > 0.3)
       .map((m) => {
-        const meta = m.metadata as unknown as VectorMetadata;
+        const meta = m.metadata as Record<string, string>;
         return {
           text: meta?.text || "",
           title: meta?.title || "Unknown",
@@ -178,20 +173,23 @@ app.post("/api/chat", async (c) => {
       .map((c, i) => `[Source ${i + 1}] (${c.title}):\n${c.text}`)
       .join("\n\n");
 
+    console.log(`Relevant chunks found: ${relevantChunks.length}, context length: ${contextText.length} chars`);
+
     // Step 4: Get conversation history for context
     const conversationHistory = await sessionStub.getContextMessages(6);
 
     // Step 5: Build the prompt and call Llama 3.3
-    const systemPrompt = `You are a research paper assistant. Your job is to answer questions about research papers using the provided context.
+    const systemPrompt = `You are PaperMind, a research paper Q&A assistant. You answer questions ONLY using the provided context from uploaded papers.
 
 Rules:
-- Answer based on the provided context from the papers. If the context doesn't contain the answer, say so clearly.
-- Cite which source you're using when referencing specific information (e.g., [Source 1]).
+- ALWAYS base your answers on the provided context below. Do NOT use your own knowledge or training data.
+- Cite which source you are referencing (e.g., [Source 1]).
+- If the context is relevant but doesn't fully answer the question, say what you can based on the context and note what's missing.
+- If no context is provided or it's irrelevant, say "I couldn't find relevant information in the uploaded papers" and suggest the user rephrase or upload more content.
 - Be precise and academic in tone, but explain complex concepts clearly.
-- If asked about something not in the papers, let the user know and offer to help with what's available.
 
-Context from papers:
-${contextText || "No relevant context found. The user may not have uploaded papers yet, or the question may not match any uploaded content."}`;
+Context from uploaded papers:
+${contextText || "No context was retrieved from the papers for this question."}`;
 
     const messages = [
       { role: "system" as const, content: systemPrompt },
