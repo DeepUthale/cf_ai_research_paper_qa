@@ -6,7 +6,7 @@ Upload research papers, and ask questions in natural language. PaperMind uses Re
 
 ## Live Demo
 
-> **Deployed at:** [https://cf-ai-research-paper-qa.<YOUR_SUBDOMAIN>.workers.dev](https://cf-ai-research-paper-qa.<YOUR_SUBDOMAIN>.workers.dev)
+> **Deployed at:** [https://cf-ai-research-paper-qa.uthaledeep2003.workers.dev/](https://cf-ai-research-paper-qa.uthaledeep2003.workers.dev/)
 
 ## Architecture
 
