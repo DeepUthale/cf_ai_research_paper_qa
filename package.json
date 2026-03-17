@@ -1,0 +1,20 @@
+{
+  "name": "cf_ai_research_paper_qa",
+  "version": "1.0.0",
+  "description": "AI-powered Research Paper Q&A built on Cloudflare's developer platform",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "create-vectorize": "wrangler vectorize create paper-embeddings --dimensions=768 --metric=cosine",
+    "create-r2": "wrangler r2 bucket create research-papers"
+  },
+  "dependencies": {
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.74.0"
+  }
+}

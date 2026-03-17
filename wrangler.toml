@@ -1,0 +1,41 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "cf-ai-research-paper-qa"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Workers AI binding
+[ai]
+binding = "AI"
+
+# R2 bucket for storing uploaded papers
+[[r2_buckets]]
+binding = "PAPERS_BUCKET"
+bucket_name = "research-papers"
+
+# Vectorize index for paper embeddings
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "paper-embeddings"
+
+# Durable Objects for chat session memory
+[durable_objects]
+bindings = [
+  { name = "CHAT_SESSION", class_name = "ChatSession" }
+]
+
+# Migrations for Durable Object SQLite storage
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ChatSession"]
+
+# Workflows for paper ingestion pipeline
+[[workflows]]
+name = "paper-ingestion"
+binding = "INGESTION_WORKFLOW"
+class_name = "PaperIngestionWorkflow"
+
+# Serve static frontend assets
+[assets]
+directory = "./static"
+binding = "ASSETS"

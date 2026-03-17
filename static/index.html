@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PaperMind - Research Paper Q&A</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">PaperMind <span>/ Q&A</span></div>
+      <div class="tagline">RAG-powered research assistant</div>
+    </div>
+
+    <div class="upload-section">
+      <h3>Upload Paper</h3>
+      <div class="upload-zone" id="dropZone">
+        <div class="upload-icon">+</div>
+        <div class="upload-text"><strong>Drop file</strong> or click to browse<br/>.pdf, .txt, .md files</div>
+        <input type="file" id="fileInput" accept=".txt,.md,.text,.pdf" />
+      </div>
+      <input type="text" class="title-input" id="paperTitle" placeholder="Paper title..." />
+      <button class="upload-btn" id="uploadBtn" disabled>Upload & Index</button>
+    </div>
+
+    <div class="papers-section">
+      <h3>Your Papers</h3>
+      <div id="papersList">
+        <div class="empty-state">No papers uploaded yet</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Chat area -->
+  <main class="chat-area">
+    <div class="chat-header">
+      <div class="chat-header-title" id="chatTitle">All papers</div>
+      <div class="chat-header-actions">
+        <button class="header-btn" onclick="clearChat()">Clear chat</button>
+        <button class="header-btn" onclick="loadPapers()">Refresh</button>
+      </div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="welcome-message">
+        <div class="welcome-icon">&#x1F4DA;</div>
+        <h2>Ask anything about your papers</h2>
+        <p>Upload a research paper from the sidebar, then ask questions. PaperMind uses Cloudflare Workers AI and Vectorize to find relevant sections and generate answers.</p>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea id="chatInput" placeholder="Ask a question about your papers..." rows="1" onkeydown="handleKey(event)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+      </div>
+      <div class="powered-by">
+        Built on <a href="https://developers.cloudflare.com/workers-ai/" target="_blank">Cloudflare Workers AI</a> + Vectorize + Durable Objects + Workflows
+      </div>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
