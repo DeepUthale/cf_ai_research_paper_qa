@@ -168,14 +168,37 @@ body {
   background: var(--accent-dim);
 }
 
+.paper-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
 .paper-title {
   font-size: 13px;
   font-weight: 500;
-  margin-bottom: 4px;
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.delete-paper-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.paper-card:hover .delete-paper-btn { opacity: 1; }
+.delete-paper-btn:hover { color: var(--error); }
 
 .paper-meta {
   font-size: 11px;

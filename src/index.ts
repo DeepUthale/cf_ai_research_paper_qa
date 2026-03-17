@@ -104,6 +104,43 @@ app.get("/api/papers/:id/status", async (c) => {
   }
 });
 
+// DELETE /api/papers/:id - Remove a paper and its vectors
+app.delete("/api/papers/:id", async (c) => {
+  try {
+    const paperId = c.req.param("id");
+
+    // Get metadata to know chunk count
+    const metaData = await c.env.PAPERS_BUCKET.get(`meta/${paperId}.json`);
+    if (!metaData) {
+      return c.json({ error: "Paper not found" }, 404);
+    }
+
+    const paper = (await metaData.json()) as Paper;
+
+    // Delete vectors from Vectorize
+    if (paper.chunkCount > 0) {
+      const vectorIds = Array.from(
+        { length: paper.chunkCount },
+        (_, i) => `${paperId}-chunk-${i}`
+      );
+      await c.env.VECTORIZE.deleteByIds(vectorIds);
+    }
+
+    // Delete paper content files from R2
+    const listed = await c.env.PAPERS_BUCKET.list({ prefix: `papers/${paperId}/` });
+    for (const obj of listed.objects) {
+      await c.env.PAPERS_BUCKET.delete(obj.key);
+    }
+
+    // Delete metadata
+    await c.env.PAPERS_BUCKET.delete(`meta/${paperId}.json`);
+
+    return c.json({ success: true });
+  } catch (err: any) {
+    return c.json({ error: err.message || "Delete failed" }, 500);
+  }
+});
+
 // POST /api/chat - Send a message and get AI response
 app.post("/api/chat", async (c) => {
   try {

@@ -138,7 +138,10 @@ async function loadPapers() {
       .map(
         (p) => `
       <div class="paper-card ${activePaperId === p.id ? "active" : ""}" onclick="selectPaper('${p.id}', '${p.title.replace(/'/g, "\\'")}')">
-        <div class="paper-title">${escapeHtml(p.title)}</div>
+        <div class="paper-card-top">
+          <div class="paper-title">${escapeHtml(p.title)}</div>
+          <button class="delete-paper-btn" onclick="deletePaper('${p.id}', event)" title="Remove paper">&times;</button>
+        </div>
         <div class="paper-meta">
           <span class="status-dot ${p.status}"></span>
           ${p.status} ${p.chunkCount ? "/ " + p.chunkCount + " chunks" : ""}
@@ -155,6 +158,26 @@ async function loadPapers() {
     }
   } catch (err) {
     console.error("Failed to load papers:", err);
+  }
+}
+
+async function deletePaper(id, event) {
+  event.stopPropagation();
+  try {
+    const res = await fetch(`${API}/api/papers/${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (data.success) {
+      if (activePaperId === id) {
+        activePaperId = null;
+        document.getElementById("chatTitle").textContent = "All papers";
+      }
+      showToast("Paper removed", "success");
+      loadPapers();
+    } else {
+      showToast(data.error || "Failed to remove paper", "error");
+    }
+  } catch (err) {
+    showToast("Failed to remove paper", "error");
   }
 }
 
