@@ -1,4 +1,4 @@
-# cf_ai_research_paper_qa
+# Research_Paper_Q&A
 
 **PaperMind** - An AI-powered Research Paper Q&A assistant built entirely on Cloudflare's developer platform.
 
